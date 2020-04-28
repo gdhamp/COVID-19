@@ -4,10 +4,13 @@ import sys
 import os
 import glob
 import csv
+import argparse
+import numpy as np
+
 
 	
-def main():
-	parseFiles('US', 'New York', 'Erie')
+def main(Country, State, County):
+	parseFiles(Country, State, County)
 	return
 
 def parseFiles(whatCountry, whatState, whatCounty):
@@ -17,6 +20,10 @@ def parseFiles(whatCountry, whatState, whatCounty):
 		deaths = 0
 		recovered = 0
 		active = 0
+		date = file
+
+
+#		doCountry = not 
 		with open(file, newline='') as csvfile:
 		
 			reader = csv.DictReader(csvfile)
@@ -37,15 +44,26 @@ def parseFiles(whatCountry, whatState, whatCounty):
 				else:
 					state= ''
 
+				if 'Admin2' in row:
+					county = row['Admin2']
+				else:
+					county = None
 
-				if country == 'US':
-					if state == 'New York':
-						confirmed += int(row['Confirmed'])
-						deaths += int(row['Deaths'])
-						recovered += int(row['Recovered'])
-						if 'Active' in row:
-							active += int(row['Active'])
-#					print(row)
+				if not whatCountry or country == whatCountry:
+					if not whatState or state == whatState:
+						if not whatCounty or county == whatCounty:
+						# some records have '' rather than 0
+							if row['Confirmed']:
+								confirmed += int(row['Confirmed'])
+
+							if row['Deaths']:
+								deaths += int(row['Deaths'])
+
+							if row['Recovered']:
+								recovered += int(row['Recovered'])
+
+							if 'Active' in row:
+								active += int(row['Active'])
 
 			dayData[os.path.splitext(file)[0]] = {'Confirmed':confirmed, 'Deaths':deaths, 'Recovered':recovered, 'Active':active}
 
@@ -53,14 +71,63 @@ def parseFiles(whatCountry, whatState, whatCounty):
 	confirmed = []
 	deaths = []
 	for k,v in dayData.items():
-		print (k,v)
-		confirmed.append(int(v['Confirmed']))
-		deaths.append(int(v['Deaths']))
+#		print (k,v)
+		confirmed.append({'Date':k, 'Confirmed':int(v['Confirmed'])})
 
-	print(confirmed)
-	print(deaths)
+		deaths.append({'Date':k, 'Deaths':int(v['Deaths'])})
+
+#	dailyConfirmed = np.diff(confirmed)
+#	dailyDeaths = np.diff(deaths)
+#	dk = list(confirmed.keys())[1:]
+	dk = [i['Date'] for i in confirmed[1:]]
+#	dv = np.diff(list(confirmed.values()))
+	dv = np.diff([i['Confirmed'] for i in confirmed])
+	dailyConfirmed = list(zip(dk, dv))
+
+	dk = [i['Date'] for i in deaths[1:]]
+	dv = np.diff([i['Deaths'] for i in deaths])
+#	dk = list(deaths.keys())[1:]
+#	dv = np.diff(list(deaths.values()))
+	dailyDeaths = list(zip(dk, dv))
+
+#	print(*confirmed, sep = '\n')
+#	print(*dailyConfirmed, sep = '\n')
+	print('\n'.join(['{} : {}'.format(i['Date'], i['Confirmed']) for i in confirmed]))
+	print('\n')
+	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyConfirmed]))
+	print('\n')
+
+#	print(*deaths, sep = '\n')
+#	print(*dailyDeaths, sep = '\n')
+	print('\n'.join(['{} : {}'.format(i['Date'], i['Deaths']) for i in deaths]))
+	print('\n')
+	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyDeaths]))
+	print('\n')
+
+	print('\n')
+
+#	Vietnam = [d for d in dailyDeaths if d[1] > 543]
+	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyDeaths if i[1] > 543]))
+#	print(Vietnam)
+#	print(len(Vietnam))
+
+
 	
+
+
 if __name__=="__main__":
-	main()
+   
+	namesp = __import__(__name__)
+	parser = argparse.ArgumentParser()
+	parser.add_argument("-C", help="Collect record for country", action='store')
+	parser.add_argument("-s", help="collect records for state", action='store')
+	parser.add_argument("-c", help="collect records for county", action='store')
+	args = parser.parse_args()
+
+	print(args.C)
+	print(args.s)
+	print(args.c)
+
+	main(args.C, args.s, args.c)
 
 	
