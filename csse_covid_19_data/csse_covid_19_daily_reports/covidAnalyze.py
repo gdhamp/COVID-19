@@ -5,7 +5,10 @@ import os
 import glob
 import csv
 import argparse
+
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 
 	
@@ -49,10 +52,11 @@ def parseFiles(whatCountry, whatState, whatCounty):
 				else:
 					county = None
 
+				# pick the rows of interest
 				if not whatCountry or country == whatCountry:
 					if not whatState or state == whatState:
 						if not whatCounty or county == whatCounty:
-						# some records have '' rather than 0
+							# some records have '' rather than 0
 							if row['Confirmed']:
 								confirmed += int(row['Confirmed'])
 
@@ -65,40 +69,37 @@ def parseFiles(whatCountry, whatState, whatCounty):
 							if 'Active' in row:
 								active += int(row['Active'])
 
+			# put the totals together and use the date string as the key
 			dayData[os.path.splitext(file)[0]] = {'Confirmed':confirmed, 'Deaths':deaths, 'Recovered':recovered, 'Active':active}
+	
+
+
 
 
 	confirmed = []
 	deaths = []
+	# grab thins in lists since they are easier to work with
 	for k,v in dayData.items():
-#		print (k,v)
 		confirmed.append({'Date':k, 'Confirmed':int(v['Confirmed'])})
 
 		deaths.append({'Date':k, 'Deaths':int(v['Deaths'])})
 
-#	dailyConfirmed = np.diff(confirmed)
-#	dailyDeaths = np.diff(deaths)
-#	dk = list(confirmed.keys())[1:]
+
+	# get the stats for each day
 	dk = [i['Date'] for i in confirmed[1:]]
-#	dv = np.diff(list(confirmed.values()))
 	dv = np.diff([i['Confirmed'] for i in confirmed])
 	dailyConfirmed = list(zip(dk, dv))
 
 	dk = [i['Date'] for i in deaths[1:]]
 	dv = np.diff([i['Deaths'] for i in deaths])
-#	dk = list(deaths.keys())[1:]
-#	dv = np.diff(list(deaths.values()))
 	dailyDeaths = list(zip(dk, dv))
 
-#	print(*confirmed, sep = '\n')
-#	print(*dailyConfirmed, sep = '\n')
+	# print everything out 
 	print('\n'.join(['{} : {}'.format(i['Date'], i['Confirmed']) for i in confirmed]))
 	print('\n')
 	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyConfirmed]))
 	print('\n')
 
-#	print(*deaths, sep = '\n')
-#	print(*dailyDeaths, sep = '\n')
 	print('\n'.join(['{} : {}'.format(i['Date'], i['Deaths']) for i in deaths]))
 	print('\n')
 	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyDeaths]))
@@ -106,10 +107,10 @@ def parseFiles(whatCountry, whatState, whatCounty):
 
 	print('\n')
 
-#	Vietnam = [d for d in dailyDeaths if d[1] > 543]
-	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyDeaths if i[1] > 543]))
-#	print(Vietnam)
-#	print(len(Vietnam))
+	# So 543 US solders died in combar during the Tet Offensive in
+	# ONE WEEK in Feb 1968, we are comparing this to NYC COVID deaths per DAY
+	TetDeaths = 543
+	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyDeaths if i[1] > TetDeaths]))
 
 
 	
@@ -123,10 +124,6 @@ if __name__=="__main__":
 	parser.add_argument("-s", help="collect records for state", action='store')
 	parser.add_argument("-c", help="collect records for county", action='store')
 	args = parser.parse_args()
-
-	print(args.C)
-	print(args.s)
-	print(args.c)
 
 	main(args.C, args.s, args.c)
 

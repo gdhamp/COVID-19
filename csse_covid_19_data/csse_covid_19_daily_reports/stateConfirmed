@@ -1,0 +1,17 @@
+#!/bin/bash
+
+file="latest"
+
+if echo $0 | grep -q Confirmed; then
+	echo "confirmed"
+	fieldKey=8
+else
+	echo "deaths"
+	fieldKey=9
+fi
+
+if echo $0 | grep -q state; then
+	grep ',US,' $file | grep ",$1," | sort -n -r --field-separator=',' --key=$fieldKey
+else
+	grep ',US,' $file | sort -n -r --field-separator=',' --key=$fieldKey
+fi
