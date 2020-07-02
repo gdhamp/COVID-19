@@ -94,6 +94,15 @@ def parseFiles(whatCountry, whatState, whatCounty):
 	dv = np.diff([i['Deaths'] for i in deaths])
 	dailyDeaths = list(zip(dk, dv))
 
+
+	c = [i['Confirmed'] for i in confirmed]
+	d = [i['Deaths'] for i in deaths]
+	plt.subplot(2,1,1)
+	plt.plot(c)
+	plt.subplot(2,1,2)
+	plt.plot(d)
+	plt.show()
+
 	# print everything out 
 	print('\n'.join(['{} : {}'.format(i['Date'], i['Confirmed']) for i in confirmed]))
 	print('\n')
