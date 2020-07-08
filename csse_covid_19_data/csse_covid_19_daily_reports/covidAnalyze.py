@@ -94,7 +94,6 @@ def parseFiles(whatCountry, whatState, whatCounty):
 	dv = np.diff([i['Deaths'] for i in deaths])
 	dailyDeaths = list(zip(dk, dv))
 
-
 	c = [i['Confirmed'] for i in confirmed]
 	d = [i['Deaths'] for i in deaths]
 	plt.subplot(2,1,1)
@@ -103,6 +102,7 @@ def parseFiles(whatCountry, whatState, whatCounty):
 	plt.plot(d)
 	plt.show()
 
+'''
 	# print everything out 
 	print('\n'.join(['{} : {}'.format(i['Date'], i['Confirmed']) for i in confirmed]))
 	print('\n')
@@ -120,6 +120,7 @@ def parseFiles(whatCountry, whatState, whatCounty):
 	# ONE WEEK in Feb 1968, we are comparing this to NYC COVID deaths per DAY
 	TetDeaths = 543
 	print('\n'.join(['{} : {}'.format(i[0], i[1]) for i in dailyDeaths if i[1] > TetDeaths]))
+'''
 
 
 	
